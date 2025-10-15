@@ -31,17 +31,68 @@ Once you have connected the **LEDstrip** & **the button module** you are good to
 Next, we will set up our database using **MongoDB**. MongoDB is a free online platform where you can store all sorts of data. This will be of use for us in this guide because we will want to store when a card gets scanned in the binder, to then send that data from the database to the app. So the connection we will make is from the **ESP8266** to the **Database** to the **website**. To archieve this, you will first need to make a [mongoDB account.](https://www.mongodb.com/cloud/atlas/register) 
 If you are new to mongodb, you will get the screen below. If you already have an account, you can skip this step. Simply make a new **project** in your organisation page. 
 For our guide we can do with the free version. Make sure to untick "preloading a **sample dataset**" as we won't need that. Also, I recommend always setting your database region to **Frankfurt**, or any other city from the EU. This will make sure that your data always falls under European data protection laws. 
-<img width="2493" height="1211" alt="image" src="https://github.com/user-attachments/assets/a0dda43d-dd0a-43f9-ad34-15a74f054945" />
+![Frame 20](https://github.com/user-attachments/assets/124f080a-7ace-4fe8-a955-1b1625d8b5dd)
+
 
 Now that we've activated our database, its time to do 2 things! First, we will set up the **database access**. When you have your new project open, there is a sidebar on the left hand side. Under the tab **security** is "database access". Click on that and then "**add database user**" In this screen you'll want to create a memorable username and Password. **Note these down** somewhere as we will use them later on. Scroll a bit down till you see "**built-in roles**". Click on that and make the user an **Atlas admin**. And thats it! click add user and you are good to go.
 
 Now, we will still stay in the security tab, but this time move on to "**network access**". Click on the add IP adress button, and then "**Add current IP adress**". Hit confirm and we are practically done with step 2 already!
 >**⚠️Important note** MongoDB works in a very secure way, by only allowing certain IP addresses to utilize the database. This security can sometimes come as an unpleasant suprise when you dont understand why the code is not working. If you are getting error messages later in this guide, always **check** if your current **IP adress is added** in this network tab!.
 
+## Step 3 - Creating an API for the ESP8266
+Next, we will make an API for the ESP8266. The reason we're doing this is so that the board gets a point where it can send **data** to. I've tried to do this in MongoDB, but sadly, they decided to end their service of offering **HTTP endpoints** in september 2025. That means that the easy way wont be working for us! (thanks mongoDB) So lets dive into a more manual way, but also a bit more complicated. I will try to explain it as clearly as possible, so there wont arise any confusion while following this guide! What we're going to do is make our very own **API**. We will do this with the [official documentation](https://www.mongodb.com/docs/atlas/app-services/data-api/migration/data-api-tutorial/#std-label-data-api-custom-express-alternative) by **mongoDB** themselves, but I will explain it more thorogouly in here, as we will also make a **few changes** to the **code** that they provide.
+
+First of all, open your **IDE program**. I will use **VSC** but any should do, and **clone** the following **repository**. If you've never cloned something before, cloning essentially means that you download someone else his work locally on your computer. Cloning is basically a fancy word for downloading, and you do it in a fancy way aswell. You can clone a repository by opening **the folder** where you want the code to be **located**. Then you open your **terminal**, and paste this **message** in there. "git clone https://github.com/abhishekmongoDB/data-api-alternative.git" Once its done, **open** the **new folder** that you have, and once again open **the terminal**. This time we will **type** the following text into the terminal: **"npm install".** This will install all the **libraries** we need. <img width="2559" height="1366" alt="image" src="https://github.com/user-attachments/assets/ce42ddc3-c3e7-4691-a674-c1804fbe6cf2" />
+Good job! thats the first part done. 
+>⚠️You might need to log in with your **Github account** first. You will probably be prompted with a log-in screen if you try to clone something without being **signed in**. Make your account, and then **repeat the process** again.
+
+Next we need to create a **new file**, look at the left side of your screen to see all your files, right click in the **blank part**, and choose "new file.." then name it **".env"**
+
+>⚠️Make sure to **not** put anything **in front** of the dot for it to work properly. Also make sure that the file landed in the **root** of your folder! this means, that it does not show up in any of the **subfolders** like for example "routes" or "utils"
+Navigate to your file, and paste the following inside of it.
+```
+# Replace with your deployment credentials
+MONGO_URI="<MONGO_URI>"
+
+# Replace with your locally defined secrets for basic proxy auth
+API_KEY="<API_KEY>"
+API_SECRET="<API_SECRET>"
+
+# Project variables
+PORT=7438
+RATE_LIMIT_WINDOW_MS=900000 # 15 minutes in milliseconds
+RATE_LIMIT_MAX=100 # Maximum requests per window
+RATE_LIMIT_MESSAGE=Too many requests, please try again later.
+```
+You will need to **replace** a few of these things with your own **values**
+**Replace** "<API_KEY>" & "<API_SECRET>"  with your own defined **Key & secrets**. Think of these as **passwords**, you can create them yourself, as they are just **for you**.
+Next replace "<MONGO_URI>" with your **connection string**. This is an example of a connection string: mongodb+srv://USERNAME:PASSWORD@YOURCLUSTER.PROJECTID.mongodb.net. You can find your connection string by navigating to the **project overview** on mongoDB. Then click **connect** on your clusters. Choose **drivers** in the pop-up that appears, and copy the connection string.
+![Frame 21](https://github.com/user-attachments/assets/785c2934-ed48-4dd9-92ff-bb6b1e296441)
+ as you can see the connection string includes **the database user** we've made in the previous step. Use **your password** that you've noted down and **replace** it with the placeholder in the copied string. If you forgot your password you can always **create a new user**. Just don't forget to change the username aswell. Once you have yours, replace it with <MONGO_URI>!. 
+
+Next, navigate to **utils** > **logging.js** in this file, delete this line ```new winston.transports.File({ filename: 'logs/api.log' })```  We need to delete this because it has conflicts with our hosting provider later in this guide. In short the official mongoDB documentation is build for Local use on your computer. You can't write a log to such a folder via a hosting provider.
+
+Another change we have to make is in the **routes** folder. navigate to that folder and then to **api.js**. Paste the following **code** above all the routes. ``` const app = express() app.set('trust proxy', true); ``` 
+>⚠️We need to add this because vercel will otherwise give us the following **error message** "ValidationError: The 'X-Forwarded-For' header is set but the Express 'trust proxy' setting is false (default). This could indicate a misconfiguration which would prevent express-rate-limit from accurately identifying users." This essentially means that a rate limit would occur before Vercel can detect whether the user has the correct credentials. If you are experiencing this error, then you need to add that line of code.
+
+Once you have all that, its time to **commit** it to your **github profile**. navigate to the **branch icon** at the sidebar, and you will see the screen to commit your files. At first, you will probably see the commit button **greyed out**. This is because it still acts like the code is from the person that we've cloned it from. To **remove this**, we need to click the **3 dots > remote > remove remote**, like you see in the screenshot ![Frame 26](https://github.com/user-attachments/assets/23c255c0-92fa-4864-846b-1239badf762a)
+ Now we can make our own repository, click **publish branch**, and choose **public** repository. Now that its commited we can move on to the next step, hosting!
+
+### Step 3.1 Hosting the code.
+
+For this step we will **host** our created **API**. The **reason** for this is that when we **run it locally**, it will use **localhost** as our link. The ESP8266 cant target this, because the localhost is, as the name implies local. It only runs on **your computer**. For this reason we need to use a **third party**, that hosts the API for us. For this tutorial I will choose **Vercel** as hosting provider. Create an **account** at [Vercel](https://vercel.com/signup) once you've made an account, in the overview, click on add **new project** ![Frame 22](https://github.com/user-attachments/assets/ec67d388-7cfc-466d-b93e-da6eca40914c)
+ We will create a new project by **importing** our git repository, thats the reason why we commited the code to our profile. Click on github and **link vercel** to your account. Once connected, it will display all your repositories. Select **"data-api-alternative"**. Once selected you will see the create project screen. A very **important** thing is that we need to add the contents of our **.env file** here. You can do this in 2 ways: Adding the whole file, or pasting every single variable manually. Both work in our case. Once you have added your .env variables, click **deploy**! 
+![Frame 25](https://github.com/user-attachments/assets/855069bb-05ea-4b95-8cc3-cf99bdf021fb)
+Vercel will now start **building**, this can take a while. If you've followed the instructions correctly, then now the API should be able to **insert items**. You can test this
+>⚠️ Most of the **errors** that can occur in this proces happen with the changes we make to the **cloned repository**. Make sure you've done all of them, as they are all **critical** for it to work. Another cause for errors could be that your **IP adress** isn't whitelisted. Check that mongoDB has your IP whitelisted for the **connection** to work. The last common cause could be that the **variables** from the .env file aren't properply imported. Check again that you have every single variable correctly written without spelling mistakes. Also check that your **connection string** matches with the password en username in your database user.
+
+## Step 4 - Code for the ESP8266
 
 
+## Step 5 - Code for the website.
 
-## Step 3 - Code for the ESP8266
 
+### Bronnen
+This guide has been made with the help of the official documentation of MongoDB. https://www.mongodb.com/docs/atlas/app-services/data-api/migration/data-api-tutorial/#std-label-data-api-custom-express-alternative
+We have also used code of this public repository https://github.com/abhishekmongoDB/data-api-alternative. 
 
-## Step 4 - Code for the website.
