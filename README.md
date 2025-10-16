@@ -10,6 +10,10 @@ For this guide we will use the following items
 - [Arduino IDE](https://www.arduino.cc/en/software)
 - A button module
 
+## Table of contents 
+[Step 1 - Set up]({#step1})
+<br>[Step 2 - Creating a database](#step-2---creating-a-database)
+
 ## Step 1 - Set up 
 In this step we will set up your ESP8266 board so every sensor is attached correctly. We'll start with the **LED strip**. Attaching the strip should be easy. Attach the **yellow** cable to **D1**, the **red** one to **3V** and the **black** one on **G**. 
 
@@ -207,6 +211,8 @@ I've written this code for that:
     }
 ```
 What this does if that when you press the button, it counts the amount of pulses it has done. If its below 4, it calls the cool LEDeffect we just added. After its 4, it switches to the green light to show you thats it's done. This way we're essentially mimicking a loading state. The fadein/out serves as the loading animation, and the green light shows that its done!
+
+Next, we're going to make sure that the ESP8266 can send data to the API we made in the previous step.
 
 
 
