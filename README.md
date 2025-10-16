@@ -280,12 +280,26 @@ Once you have the httpResonsecode in your file, you are almost done! Simply end 
     }
 ```
 >⚠️ This part is by far the most troublesome part of the guide, so i'll give you a few tools to check for what could go wrong.
-><br> - Use vercel!!! Vercel is your best friend in these situations! It has a very elaborate logging system which exactly tells you what is going wrong, for example if it's experiencing an internal error (so something with the API itself) or that your ESP8266 is encountering an error
+><br> - Use vercel!!! Vercel is your best friend in these situations! It has a very elaborate logging system which exactly tells you what is going wrong, for example if it's experiencing an internal error (so something with the API itself) or that your ESP8266 is encountering an error. You can find the logs by clicking on your most recent deployment, and navigating to the logs tab in the navigation.
 ><br> - Check if the item you are trying to add does not already exist in mongoDB. When i wrote this guide, I was testing like crazy and didn't notice that it was actually working. MongoDB does not allow default items by default, and I didnt notice, so i constantly thought something else was going wrong.
+><br> - If you are getting 403 forbidden errors something is going wrong on the ESP8266 side of things. Check if you have the right syntax for the keys, in our repository they will look like this x-api-key and this x-api-secret. its very case sensitive so make sure you get it right. Another issue could be that you have the wrong link, or skipped a few steps when we were setting up the HTTP library and the wifisecure library.
+><br> - If you are getting 505 internal errors, make sure you have added app.set('trust proxy', true); to index.js in your repository. Without this line vercel won't trust the ESP8266 and the process will immidiately fail.
+><br> - If you are still getting errors even after trying the above 4 suggestions, it might be worthwhile to add debugging to your HTTP part of the code. Write them yourself or ask chatGPT for a debugging snippet. IF you do this, make sure to paste the debugging lines above the line "http.end();" As we end the http service from here, and any functions that invoke http won't work after that.
 
 
 
 ## Step 5 - Code for the website.
+Okay so quick check! If you arrived at this step you have:
+ - Made your own database
+ - Used the API alternative from MongoDB
+ - Have hosted it on vercel
+ - Made the LEDS and the button work for the ESP8266
+ - Made the HTTPS request work for the ESP8266
+
+If so, Congratulations! We are almost done. If you dont have any of those things, you can look back in the guide. On most checkpoints I have added solutions to potential errors, check if any of those help your situation. 
+For the last part of this guide, we will create a simple webapp to show our database card! All the hard work will finally pay off.
+
+Now dont worry, I wont instruct you how to build a website from scratch, I have made my own website for you to use, and you can download it by once again cloning a reposity, this time mine. 
 
 
 ### Bronnen
