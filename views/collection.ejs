@@ -1,0 +1,54 @@
+<%- include('partials/header') %>
+
+<h1>Your collection</h1>
+
+
+<div style="display:flex;gap:18px;align-items:flex-start;margin-bottom:12px">
+  <div style="flex:1">
+    <div style="font-weight:700;margin-bottom:8px">Sorting</div>
+    <div style="border:2px solid var(--blue);padding:10px;border-radius:10px;display:flex;gap:12px;align-items:center">
+      <div style="padding:6px 10px">All</div>
+      <div style="border-left:1px solid #ccc;height:24px"></div>
+      <div style="padding:6px 10px">Duplicate</div>
+      <div style="border-left:1px solid #ccc;height:24px"></div>
+      <div style="padding:6px 10px">Missing</div>
+    </div>
+  </div>
+
+  <div style="width:260px">
+    <div style="font-weight:700;margin-bottom:8px">Filtering</div>
+    <div style="border:2px solid var(--blue);padding:10px;border-radius:10px;display:flex;gap:8px;align-items:center">
+      <img id="filter-img" src="/images/psychic.png" style="width:36px;height:36px;border-radius:6px">
+      <select id="filter-select" class="styled" aria-label="filter" style="flex:1">
+        <option value="all" data-img="/images/psychic.png">All</option>
+        <option value="psychic" data-img="/images/psychic.png">Psychic</option>
+        <option value="fire" data-img="/images/fire.png">Fire</option>
+        <option value="grass" data-img="/images/grass.png">Grass</option>
+        <option value="water" data-img="/images/water.png">Water</option>
+        <option value="fairy" data-img="/images/fairy.png">Fairy</option>
+        <option value="fighting" data-img="/images/fighting.png">Fighting</option>
+        <option value="lightning" data-img="/images/lightning.png">Lightning</option>
+        <option value="metal" data-img="/images/metal.png">Metal</option>
+        <option value="darkness" data-img="/images/darkness.png">Darkness</option>
+        <option value="dragon" data-img="/images/dragon.png">Dragon</option>
+      </select>
+    </div>
+  </div>
+</div>
+
+<hr style="border:2px solid var(--blue);margin:8px 0 18px">
+
+<div class="card-grid" id="card-grid">
+  <% cards.forEach(c=>{ %>
+    <div class="card" data-energy="<%= (c.energy||'').toLowerCase() %>">
+      <% if(c.img){ %>
+        <img src="<%= c.img %>" alt="card">
+      <% } else { %>
+        <div class="no-image">No image</div>
+      <% } %>
+      <div class="energy-label"><%= c.energy || '' %></div>
+    </div>
+  <% }) %>
+</div>
+
+<%- include('partials/footer') %>

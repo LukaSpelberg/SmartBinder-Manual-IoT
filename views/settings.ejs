@@ -1,0 +1,22 @@
+<%- include('partials/header') %>
+
+<h1>General Settings</h1>
+
+<div style="background:white;padding:18px;border-radius:12px">
+  <label>Display name<br><input type="text" placeholder="Your name" style="width:100%;padding:8px;border-radius:6px;border:1px solid #ddd"></label>
+  <div style="margin-top:12px">
+    <label>Email<br><input type="email" placeholder="you@example.com" style="width:100%;padding:8px;border-radius:6px;border:1px solid #ddd"></label>
+  </div>
+  <div style="margin-top:12px">
+    <label>Language<br>
+      <select style="width:100%;padding:8px;border-radius:6px;border:1px solid #ddd">
+        <option>English</option>
+      </select>
+    </label>
+  </div>
+  <div style="margin-top:12px;display:flex;gap:8px;justify-content:flex-end">
+    <button style="background:var(--blue);color:#fff;border-radius:8px;padding:8px 12px;border:none">Save</button>
+  </div>
+</div>
+
+<%- include('partials/footer') %>

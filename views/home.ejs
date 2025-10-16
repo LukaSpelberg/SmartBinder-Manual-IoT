@@ -1,0 +1,52 @@
+<%- include('partials/header') %>
+
+<h1>Your dashboard</h1>
+
+<section>
+  <h2>Stats</h2>
+  <div style="display:flex;gap:12px;flex-wrap:wrap">
+    <div style="background:white;padding:14px;border-radius:12px;min-width:120px">Total<br><strong><%= cards.length %></strong></div>
+    <div style="background:white;padding:14px;border-radius:12px;min-width:120px">Types<br><strong><%= [...new Set(cards.map(c=>c.energy||''))].filter(Boolean).length %></strong></div>
+    <div style="background:white;padding:14px;border-radius:12px;min-width:120px">Recent<br><strong><%= recent.length %></strong></div>
+  </div>
+</section>
+
+<section style="margin-top:20px">
+  <h2>Most recent</h2>
+  <div class="card-grid">
+    <% recent.forEach(c=>{ %>
+      <div class="card" data-energy="<%= (c.energy||'').toLowerCase() %>">
+        <% if(c.img){ %>
+          <img src="<%= c.img %>" alt="card">
+        <% } else { %>
+          <div class="no-image">No image</div>
+        <% } %>
+      </div>
+    <% }) %>
+  </div>
+</section>
+
+<!-- recent modal -->
+<% if(newSinceLast && newSinceLast.length>0){ %>
+  <div id="recent-modal" class="modal-backdrop">
+    <div class="modal">
+      <button class="close" style="float:right">✕</button>
+      <h2 style="text-align:center">New cards were added since your last visit!</h2>
+      <% if((newSinceLast[0]||{}).img){ %>
+        <img class="spot" src="<%= (newSinceLast[0]||{}).img %>" alt="spotlight">
+      <% } %>
+      <p>Along with several other cards:</p>
+      <div class="mini-row">
+        <% newSinceLast.slice(0,4).forEach(r=>{ %>
+          <% if(r.img){ %>
+            <img src="<%= r.img %>">
+          <% } %>
+        <% }) %>
+        <div style="width:48px;height:72px;background:#000;color:#fff;border-radius:6px;display:flex;align-items:center;justify-content:center">+<%= Math.max(0,newSinceLast.length-4) %></div>
+      </div>
+      <div style="text-align:center;margin-top:18px"><a href="/collection" style="background:#2E6EAE;color:#fff;padding:10px 20px;border-radius:12px;text-decoration:none">Let's go!</a></div>
+    </div>
+  </div>
+<% } %>
+
+<%- include('partials/footer') %>
