@@ -321,9 +321,9 @@ Here is a showcase video of the guide in action! https://youtu.be/lqxe38ZlvGY
 >⚠️ If you encountered any issues with the website, or any other part of this guide that are still unresolved, don't be scared to drop a new issue on this repo. I will read them all, and try to help you if I can. This way, we can all make a finished product!
 
 ### Sources
-This guide has been made with the help of the official documentation of MongoDB. https://www.mongodb.com/docs/atlas/app-services/data-api/migration/data-api-tutorial/#std-label-data-api-custom-express-alternative
-I have also used code of this public repository https://github.com/abhishekmongoDB/data-api-alternative. 
-I used this website for the LED strip fading https://www.tweaking4all.com/hardware/arduino/adruino-led-strip-effects
-And last but not least this site to make HTTPS requests: https://randomnerdtutorials.com/esp8266-nodemcu-http-get-post-arduino/#http-post
+This guide has been made with the help of the [official documentation of MongoDB.](https://www.mongodb.com/docs/atlas/app-services/data-api/migration/data-api-tutorial/#std-label-data-api-custom-express-alternative)
+<br>I have also used code of this [public repository](https://github.com/abhishekmongoDB/data-api-alternative.)
+<br>I used this website for the [LED strip fading](https://www.tweaking4all.com/hardware/arduino/adruino-led-strip-effects)
+<br>And last but not least this site to make [HTTPS requests:](https://randomnerdtutorials.com/esp8266-nodemcu-http-get-post-arduino/#http-post)
 
 
