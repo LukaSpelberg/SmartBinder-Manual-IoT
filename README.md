@@ -11,10 +11,10 @@ For this guide we will use the following items
 - A button module
 
 ## Table of contents 
-[Step 1 - Set up](#step1)
+[Step 1 - Set up]()
 <br>[Step 2 - Creating a database](#step-2---creating-a-database)
 
-## Step 1 - Set up <a name="step1"></a>
+## Step 1 - Set up
 In this step we will set up your ESP8266 board so every sensor is attached correctly. We'll start with the **LED strip**. Attaching the strip should be easy. Attach the **yellow** cable to **D1**, the **red** one to **3V** and the **black** one on **G**. 
 
 <img width="500" alt="image" src="https://github.com/user-attachments/assets/a0731280-52d7-42e3-a33f-9091c6f67985" />
