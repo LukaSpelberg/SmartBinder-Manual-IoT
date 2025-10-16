@@ -299,10 +299,25 @@ Okay so quick check! If you arrived at this step you have:
 If so, Congratulations! We are almost done. If you dont have any of those things, you can look back in the guide. On most checkpoints I have added solutions to potential errors, check if any of those help your situation. 
 For the last part of this guide, we will create a simple webapp to show our database card! All the hard work will finally pay off.
 
-Now dont worry, I wont instruct you how to build a website from scratch, I have made my own website for you to use, and you can download it by once again cloning a reposity, this time mine. 
+Now dont worry, I wont instruct you how to build a website from scratch, I have made my own website for you to use, and you can download it by once again cloning a reposity, this time mine. For the people who would like the instructions for this again: 
+You can clone a repository by opening **the folder** where you want the code to be **located**. Then you open your **terminal**, and paste this **message** in there. "git clone https://github.com/LukaSpelberg/SmartBinder-Manual-IoT.git" Once its done, **open** the **new folder** that you have, and once again open **the terminal**. This time we will **type** the following text into the terminal: **"npm install".** This will install all the **libraries** we need.
 
+Once you have cloned the repository and typed npm install, you only need to do one last thing: create an .env document. We have also done this in the past, so you probably know how to do this by now. Create a document called ".env" in the root of your folder.
+the document only has one thing in it:
+```
+MONGODB_URI=
+```
+In here you will need to paste your database connection string. You can simply copy the string from your previous .env file in the API.
+
+Once you have all this, type in the terminal "npm run dev". This will let the terminal start a server on your local computer. hold control, and click on the link in your teminal. This will open your default browser, and hooray! your card has been added to the app!
+
+With all these steps finally done, you have found a way to send documents to a database and display them on an app. 
+>⚠️ If you encountered any issues with the website, or any other part of this guide that are still unresolved, don't be scared to drop a new issue on this repo. I will read them all, and try to help you if I can. This way, we can all make a finished product!
 
 ### Bronnen
 This guide has been made with the help of the official documentation of MongoDB. https://www.mongodb.com/docs/atlas/app-services/data-api/migration/data-api-tutorial/#std-label-data-api-custom-express-alternative
-We have also used code of this public repository https://github.com/abhishekmongoDB/data-api-alternative. 
+I have also used code of this public repository https://github.com/abhishekmongoDB/data-api-alternative. 
+I used this website for the LED strip fading https://www.tweaking4all.com/hardware/arduino/adruino-led-strip-effects
+And last but not least this site to make HTTPS requests: https://randomnerdtutorials.com/esp8266-nodemcu-http-get-post-arduino/#http-post
+
 
