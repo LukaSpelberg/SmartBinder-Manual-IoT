@@ -11,8 +11,12 @@ For this guide we will use the following items
 - A button module
 
 ## Table of contents 
-[Step 1 - Set up]()
+[Step 1 - Set up](#step-1---set-up)
 <br>[Step 2 - Creating a database](#step-2---creating-a-database)
+<br>[Step 3 - Creating an API for the ESP8266](step-3---creating-an-api-for-the-esp8266)
+<br>[Step 3.1 - Hosting the API](#step-31-hosting-the-code)
+<br>[Step 4 - Code for the ESP8266](#step-4---code-for-the-esp8266)
+<br>[Step 5 - Code for the webapp](#step-5---code-for-the-website)
 
 ## Step 1 - Set up
 In this step we will set up your ESP8266 board so every sensor is attached correctly. We'll start with the **LED strip**. Attaching the strip should be easy. Attach the **yellow** cable to **D1**, the **red** one to **3V** and the **black** one on **G**. 
@@ -76,7 +80,7 @@ Next replace "<MONGO_URI>" with your **connection string**. This is an example o
 
 Next, navigate to **utils** > **logging.js** in this file, delete this line ```new winston.transports.File({ filename: 'logs/api.log' })```  We need to delete this because it has conflicts with our hosting provider later in this guide. In short the official mongoDB documentation is build for Local use on your computer. You can't write a log to such a folder via a hosting provider.
 
-Another change we have to make is in the **routes** folder. navigate to that folder and then to **api.js**. Paste the following **code** above all the routes. ``` const app = express() app.set('trust proxy', true); ``` 
+Another change we have to make is in the **index.js** file. navigate to that file and then paste the following **code** below const app = express(); on line 13. ```app.set('trust proxy', true); ``` 
 >⚠️We need to add this because vercel will otherwise give us the following **error message** "ValidationError: The 'X-Forwarded-For' header is set but the Express 'trust proxy' setting is false (default). This could indicate a misconfiguration which would prevent express-rate-limit from accurately identifying users." This essentially means that a rate limit would occur before Vercel can detect whether the user has the correct credentials. If you are experiencing this error, then you need to add that line of code.
 
 Once you have all that, its time to **commit** it to your **github profile**. navigate to the **branch icon** at the sidebar, and you will see the screen to commit your files. At first, you will probably see the commit button **greyed out**. This is because it still acts like the code is from the person that we've cloned it from. To **remove this**, we need to click the **3 dots > remote > remove remote**, like you see in the screenshot ![Frame 26](https://github.com/user-attachments/assets/23c255c0-92fa-4864-846b-1239badf762a)
@@ -212,7 +216,72 @@ I've written this code for that:
 ```
 What this does if that when you press the button, it counts the amount of pulses it has done. If its below 4, it calls the cool LEDeffect we just added. After its 4, it switches to the green light to show you thats it's done. This way we're essentially mimicking a loading state. The fadein/out serves as the loading animation, and the green light shows that its done!
 
-Next, we're going to make sure that the ESP8266 can send data to the API we made in the previous step.
+Next, we're going to make sure that the ESP8266 can send data to the API we made in the previous step. to make this work we need to make sure that the board can make an HTTPS POST request. This is a fancy word in code that basically means that you want to transfer a set of data to someplace. For this part of the code I have used [this guide](https://randomnerdtutorials.com/esp8266-nodemcu-http-get-post-arduino/#http-post) as help. Once again, if you are interested in more ESP8266 tutorials, this is the place to go. Especially for things that have to do with connecting to apps or the internet. 
+>⚠️The problem with this guide is that it wants us to write an HTTP request. Apparantly i have been disproven and you can actually send HTTP requests instead of HTTPS requests to your API. But that doesn't matter, HTTPS is cooler anyways. The issue is that we can't follow this guide step by step and need to make a few tweaks ourselfs, but thats okay.
+
+First go to the top of your file and remove "#include <ESP8266WiFi.h>" Instead include these 2 libraries instead, #include <WiFiClientSecure.h> #include <ESP8266HTTPClient.h>. As i've said above, there are a lot of issues that arise when you are trying to send HTTPS requests with an HTTP module, and the wifi library was one of the culprits. We will instead use WiFIClientsecure, its basically the same thing, but made for HTTPS.
+
+Then we will define our API link. We define this by using "const char* API_URL =" You can find your actual link on your vercel dashboard that you've made it in the previous step. Mine looks like this: ```const char* API_URL = "https://data-api-alternative-tau.vercel.app/api/insertOne"; ``` 
+>⚠️Its important that you add /api/insertOne at the end of your link. This is because the ESP8266 wont do anything if you just send it to the main link of your API. You need to call a function for the API to use, and to insert a new document we need the insertOne document.
+
+Also add these 2 lines below that ```unsigned long lastTime = 0;
+unsigned long timerDelay = 5000;```
+
+The last part in the configuration is setting both clients properly up 
+```
+WiFiClientSecure client;
+HTTPClient http;
+```
+Replace wificlient; client with wificlientsecure as thats the library we're using now. 
+
+in the void setup you'll want to add one line of code 
+```
+client.setInsecure();
+```
+This makes the ESP8266 skip the SSL verification, in our use case this is ideal, because we know the adress its sending to, and the ESP8266 has a very low amount of memory, so we don't want to add unnecessary steps.
+Now that we're finally done with the setup, its time to get to the real work! We will want the HTTP request to start at the top of our function that we already have (if digitalread(button_pin) == high) 
+We need to paste the following things 
+```
+ http.begin(client, API_URL);
+ http.addHeader("Content-Type", "application/json");
+ http.addHeader("x-api-key", "your API key that you made in the previous step");
+ http.addHeader("x-api-secret", "your API Secret that you made it in the previous step");
+```
+
+What this does is the following, http.begin starts the HTTP process and calls our api_url that we defined earlier as the adress, then we ask the ESP to send a json file to it. We then need to add headers to the message. I first put everything in one huge JSON string, but it does not accept that. as it needs the important information probably first in the "subject" of the message. Once it has that we can start to define the document. paste this below the httpheaders you just pasted in your document!
+```
+int httpResponseCode = http.POST("{\"database\":\"SmartBinder\",\"collection\":\"cards\",\"document\":{\"energy\":\"fire\",\"HP\":\"300\",\"image\":\"https://raw.githubusercontent.com/LukaSpelberg/SmartBinder-Manual-IoT/refs/heads/main/image%2010.png\"}}"); 
+```
+This is the tricky part, because the syntax is very confusing and gave me a real headache. But trust me, once you understand the syntax its not as confusing as you might think. You start the message off by letting it know your database and collection. Those are the first two things i declare. Every object needs to be written like this \"object\":\"value\" this is basically the same as object:value but with some extra steps.
+>⚠️ Also a thing to point out, the ESP8266 has a lot of trouble with images, because of the low RAM it has. Your only option is to host an image somewhere, and use the link in the JSON, like i did. I have chosen github itself as hosting as that was the easiest for me.
+
+Once you have the httpResonsecode in your file, you are almost done! Simply end the http section with an "http.end()" and thats all! Just to check, your function should now look something like this:
+```   
+   if (digitalRead(BUTTON_PIN) == HIGH) {
+      http.begin(client, API_URL);
+      http.addHeader("Content-Type", "application/json");
+      http.addHeader("x-api-key", "Banaan");
+      http.addHeader("x-api-secret", "Plant");
+      int httpResponseCode = http.POST("{\"database\":\"SmartBinder\",\"collection\":\"cards\",\"document\":{\"energy\":\"fire\",\"HP\":\"300\",\"image\":\"https://raw.githubusercontent.com/LukaSpelberg/SmartBinder-Manual-IoT/refs/heads/main/image%2010.png\"}}");
+      http.end();
+      while (pulses < 4) {
+        fadeInOut(0xff, 0xff, 0xff);
+        pulses = pulses + 1; 
+      }
+      for (int i = 0; i < NUMPIXELS; i++) {
+        pixels.setPixelColor(i, pixels.Color(0, 150, 0));
+      }
+      pixels.show();
+
+      delay(500);
+      pixels.clear();
+      pixels.show();
+      pulses = 0; 
+    }
+```
+>⚠️ This part is by far the most troublesome part of the guide, so i'll give you a few tools to check for what could go wrong.
+><br> - Use vercel!!! Vercel is your best friend in these situations! It has a very elaborate logging system which exactly tells you what is going wrong, for example if it's experiencing an internal error (so something with the API itself) or that your ESP8266 is encountering an error
+><br> - Check if the item you are trying to add does not already exist in mongoDB. When i wrote this guide, I was testing like crazy and didn't notice that it was actually working. MongoDB does not allow default items by default, and I didnt notice, so i constantly thought something else was going wrong.
 
 
 
