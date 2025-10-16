@@ -96,7 +96,7 @@ Vercel will now start **building**, this can take a while. If you've followed th
 
 ## Step 4 - Code for the ESP8266
 
-Now, we are going to write the code for the ESP8266 board, so that it can mimick the experience of the actual SmartBinder. First of all, open your arduino IDE and click new sketch. Copy the code down below, this will be our foundation 
+Now, we are going to write the code for the **ESP8266 board**, so that it can mimick the experience of the actual **SmartBinder**. First of all, open your **arduino IDE** and make a new file / **new sketch**. Copy the code down below, this will be our **foundation**
 ```
 #include <ArduinoJson.h>
 #include <ESP8266WiFi.h>
@@ -160,7 +160,7 @@ void loop() {
 }
 ```
 
-As always, there are a few things we need to change here. Lets start with the WiFi credentials. Under Configurate, you need to switch the placeholders with your hotspot credentials or wifi credentials. Thats for now the only thing we need to tweak. Now let's also look at adding things. First, we need to make some code with the ledstrip. I've made this with the help of this [guide](https://www.tweaking4all.com/hardware/arduino/adruino-led-strip-effects). If you are interested in playing more with your LEDStrip make sure to check out more of their stuff! We will be using parts of their Fade in/Fade out code. This is sadly made for a different type of LEDstrip than ours, so we need to tweak it a bit. 
+As always, there are a few things we need to **change** here. Lets start with the **WiFi credentials**. Under **Configurate**, you need to switch the placeholders with your **hotspot** credentials or **wifi** credentials. Thats for now the only thing we need to tweak. Now let's also look at adding things. First, we need to make some code with **the ledstri**p. I've made this with the help of this [guide](https://www.tweaking4all.com/hardware/arduino/adruino-led-strip-effects). If you are interested in playing more with your LEDStrip make sure to check out more of their stuff! We will be using parts of their **Fade in/Fade out code**. This is sadly made for a different type of LEDstrip than ours, so we need to **tweak** it a bit. 
 Use this snippet and paste it ABOVE your void loop() 
 ```
 void FadeInOut(byte red, byte green, byte blue){
@@ -185,17 +185,17 @@ void FadeInOut(byte red, byte green, byte blue){
   }
 }
 ```
-Most of this code works nicely, but we need to change specifically how we set the colors on our LEDstrip and how we tell it to show them. These two lines are the culprits on both for loops: ```setAll(r,g,b); showStrip();`` Our ledstrip always wants us to define what the color of every pixel needs to be, in this code, they just casually ask it to set everything to one color, but thats not the correct Syntax. Also, showstrip is not the correct syntax for our ledstrip either. So what we're going to do is replace those lines in BOTH for loops. 
+Most of this code works nicely, but we need to change specifically how we set the **colors** on our LEDstrip and how we **tell** it to show them. These two lines are the **culprits** on both for loops: ```setAll(r,g,b); showStrip();`` Our ledstrip always wants us to **define** what the color of **every pixel** needs to be, in this code, they just casually ask it to set everything to one color, but thats not the correct **Syntax**. Also, showstrip is not the correct syntax for our ledstrip either. So what we're going to do is replace those lines in BOTH for loops. 
 ```
   for (int i = 0; i < NUMPIXELS; i++) {
     pixels.setPixelColor(i, pixels.Color(r, g, b));
       }
     pixels.show();
 ```
-Copy this, and paste it. 
->⚠️ Make sure that you replace the lines for both the for loops. The FadeInOut consists of a forloop that makes the color fade in, and a forloop that makes the color fade out, its important that we adjust to both loops.
+Copy this, and **paste it.** 
+>⚠️ **Make sure** that you replace the lines for both the for loops. The FadeInOut consists of a forloop that makes the color fade in, and a forloop that makes the color fade out, its important that we adjust to **both loops**.
 
-Now that we have the cool effect that we need for the LEDS, its time to implement our actual card interaction! 
+Now that we have the cool effect that we need for the LEDS, its time to implement our actual **card interaction!** 
 I've written this code for that: 
 ```
  if (digitalRead(BUTTON_PIN) == HIGH) {
@@ -214,17 +214,17 @@ I've written this code for that:
       pulses = 0; 
     }
 ```
-What this does if that when you press the button, it counts the amount of pulses it has done. If its below 4, it calls the cool LEDeffect we just added. After its 4, it switches to the green light to show you thats it's done. This way we're essentially mimicking a loading state. The fadein/out serves as the loading animation, and the green light shows that its done!
+What this does if that when you **press** the button, it counts the **amount of pulses** it has done. If its below 4, it calls the cool **LEDeffect** we just added. After its 4, it switches to the **green light** to show you thats it's **done**. This way we're essentially mimicking a **loading state**. The fadein/out serves as the loading animation, and the green light shows that its done!
 
-Next, we're going to make sure that the ESP8266 can send data to the API we made in the previous step. to make this work we need to make sure that the board can make an HTTPS POST request. This is a fancy word in code that basically means that you want to transfer a set of data to someplace. For this part of the code I have used [this guide](https://randomnerdtutorials.com/esp8266-nodemcu-http-get-post-arduino/#http-post) as help. Once again, if you are interested in more ESP8266 tutorials, this is the place to go. Especially for things that have to do with connecting to apps or the internet. 
->⚠️The problem with this guide is that it wants us to write an HTTP request. Apparantly i have been disproven and you can actually send HTTP requests instead of HTTPS requests to your API. But that doesn't matter, HTTPS is cooler anyways. The issue is that we can't follow this guide step by step and need to make a few tweaks ourselfs, but thats okay.
+Next, we're going to make sure that the ESP8266 can **send data** to the **API** we made in the previous step. to make this work we need to make sure that **the board** can make an **HTTPS POST request**. This is a fancy word in code that basically means that you want to transfer a set of data to someplace. For this part of the code I have used [this guide](https://randomnerdtutorials.com/esp8266-nodemcu-http-get-post-arduino/#http-post) as help. Once again, if you are interested in more ESP8266 tutorials, this is the place to go. Especially for things that have to do with connecting to apps or the internet. 
+>⚠️**The problem** with this guide is that it wants us to write an HTTP request. Apparantly i have been disproven and you can actually send HTTP requests instead of HTTPS requests to your API. But that doesn't matter, HTTPS is cooler anyways. The issue is that we can't follow this guide step by step and need to make a few tweaks ourselfs, but thats okay.
 
-First go to the top of your file and remove "#include <ESP8266WiFi.h>" Instead include these 2 libraries instead, #include <WiFiClientSecure.h> #include <ESP8266HTTPClient.h>. As i've said above, there are a lot of issues that arise when you are trying to send HTTPS requests with an HTTP module, and the wifi library was one of the culprits. We will instead use WiFIClientsecure, its basically the same thing, but made for HTTPS.
+First go to the top of your file and **remove "#include <ESP8266WiFi.h>"** Instead **include** these 2 libraries instead, **#include <WiFiClientSecure.h> #include <ESP8266HTTPClient.h>.** As i've said above, there are a lot of **issues** that arise when you are trying to send **HTTPS** requests with an HTTP module, and the w**ifi library** was one of the culprits. We will instead use **WiFIClientsecure**, its basically the same thing, but made for HTTPS.
 
-Then we will define our API link. We define this by using "const char* API_URL =" You can find your actual link on your vercel dashboard that you've made it in the previous step. Mine looks like this: ```const char* API_URL = "https://data-api-alternative-tau.vercel.app/api/insertOne"; ``` 
->⚠️Its important that you add /api/insertOne at the end of your link. This is because the ESP8266 wont do anything if you just send it to the main link of your API. You need to call a function for the API to use, and to insert a new document we need the insertOne document.
+Then we will define our **API link**. We define this by **using** "const char* API_URL =" You can find your actual link on your **vercel dashboard** that you've made it in the previous step. Mine looks like this: ```const char* API_URL = "https://data-api-alternative-tau.vercel.app/api/insertOne"; ``` 
+>⚠️**It's important** that you add /api/insertOne at the end of your link. This is because the ESP8266 wont do anything if you just send it to the main link of your API. You need to call a function for the API to use, and to insert a new document we need the insertOne document.
 
-Also add these 2 lines below that ```unsigned long lastTime = 0;
+Also **add** these 2 lines below that ```unsigned long lastTime = 0;
 unsigned long timerDelay = 5000;```
 
 The last part in the configuration is setting both clients properly up 
@@ -232,15 +232,15 @@ The last part in the configuration is setting both clients properly up
 WiFiClientSecure client;
 HTTPClient http;
 ```
-Replace wificlient; client with wificlientsecure as thats the library we're using now. 
+**Replace** wificlient; client with **WiFiClientSecure** client; as thats the library we're using now. 
 
-in the void setup you'll want to add one line of code 
+in the void setup you'll want to **add** one line of code 
 ```
 client.setInsecure();
 ```
-This makes the ESP8266 skip the SSL verification, in our use case this is ideal, because we know the adress its sending to, and the ESP8266 has a very low amount of memory, so we don't want to add unnecessary steps.
-Now that we're finally done with the setup, its time to get to the real work! We will want the HTTP request to start at the end of our function that we already have (if digitalread(button_pin) == high) 
-We need to paste the following things 
+This makes the ESP8266 skip the **SSL verification**, in our use case this is **ideal**, because we know the adress its sending to, and the ESP8266 has a very **low** amount of **memory**, so we don't want to add unnecessary steps.
+Now that we're finally done with the setup, its time to get to the real work! We will want the **HTTP request** to start at the **end** of our function that we already have (if digitalread(button_pin) == high) 
+We need to **paste** the following things 
 ```
  http.begin(client, API_URL);
  http.addHeader("Content-Type", "application/json");
@@ -248,14 +248,14 @@ We need to paste the following things
  http.addHeader("x-api-secret", "your API Secret that you made it in the previous step");
 ```
 
-What this does is the following, http.begin starts the HTTP process and calls our api_url that we defined earlier as the adress, then we ask the ESP to send a json file to it. We then need to add headers to the message. I first put everything in one huge JSON string, but it does not accept that. as it needs the important information probably first in the "subject" of the message. Once it has that we can start to define the document. paste this below the httpheaders you just pasted in your document!
+What this does is the following: **http.begin** starts the HTTP process and **calls** our api_url that we defined earlier as the **adress**. Then we ask the ESP to send a **json file** to it. We then need to add **headers** to the message. I first put everything in one huge **JSON string**, but it does not accept that. as it needs the important information probably first in the "subject" of the message. Once it has that we can start to **define the document**. paste this **below** the httpheaders you just pasted in your document!
 ```
 int httpResponseCode = http.POST("{\"database\":\"SmartBinder\",\"collection\":\"cards\",\"document\":{\"energy\":\"fire\",\"HP\":\"300\",\"image\":\"https://raw.githubusercontent.com/LukaSpelberg/SmartBinder-Manual-IoT/refs/heads/main/image%2010.png\"}}"); 
 ```
-This is the tricky part, because the syntax is very confusing and gave me a real headache. But trust me, once you understand the syntax its not as confusing as you might think. You start the message off by letting it know your database and collection. Those are the first two things i declare. Every object needs to be written like this \"object\":\"value\" this is basically the same as object:value but with some extra steps.
->⚠️ Also a thing to point out, the ESP8266 has a lot of trouble with images, because of the low RAM it has. Your only option is to host an image somewhere, and use the link in the JSON, like i did. I have chosen github itself as hosting as that was the easiest for me.
+This is the tricky part, because the **syntax** is very confusing and gave me a real **headache**. But trust me, once you understand the syntax its not as confusing as you might think. You start the message off by letting it know your **database** and **collection**. Those are the first two things i declare. Every **object** needs to be written like this \"object\":\"value\" this is basically the same as object:value but with some extra steps.
+>⚠️Also a thing to point out, the ESP8266 has a lot of trouble with images, because of the **low RAM** it has. Your only option is to **host** an image somewhere, and use the link in the JSON, like i did. I have chosen **github** itself as hosting as that was the easiest for me.
 
-Once you have the httpResonsecode in your file, you are almost done! Simply end the http section with an "http.end()" and thats all! Just to check, your function should now look something like this:
+Once you have the **httpResonsecode** in your file, you are almost done! Simply end the http section with an **"http.end()"** and thats all! Just to check, your **function** should now look something like this:
 ```   
    if (digitalRead(BUTTON_PIN) == HIGH) {
       while (pulses < 4) {
@@ -280,12 +280,12 @@ Once you have the httpResonsecode in your file, you are almost done! Simply end 
       http.end();
     }
 ```
->⚠️ This part is by far the most troublesome part of the guide, so i'll give you a few tools to check for what could go wrong.
-><br> - Use vercel!!! Vercel is your best friend in these situations! It has a very elaborate logging system which exactly tells you what is going wrong, for example if it's experiencing an internal error (so something with the API itself) or that your ESP8266 is encountering an error. You can find the logs by clicking on your most recent deployment, and navigating to the logs tab in the navigation.
-><br> - Check if the item you are trying to add does not already exist in mongoDB. When i wrote this guide, I was testing like crazy and didn't notice that it was actually working. MongoDB does not allow default items by default, and I didnt notice, so i constantly thought something else was going wrong.
-><br> - If you are getting 403 forbidden errors something is going wrong on the ESP8266 side of things. Check if you have the right syntax for the keys, in our repository they will look like this x-api-key and this x-api-secret. its very case sensitive so make sure you get it right. Another issue could be that you have the wrong link, or skipped a few steps when we were setting up the HTTP library and the wifisecure library.
-><br> - If you are getting 505 internal errors, make sure you have added app.set('trust proxy', true); to index.js in your repository. Without this line vercel won't trust the ESP8266 and the process will immidiately fail.
-><br> - If you are still getting errors even after trying the above 4 suggestions, it might be worthwhile to add debugging to your HTTP part of the code. Write them yourself or ask chatGPT for a debugging snippet. IF you do this, make sure to paste the debugging lines above the line "http.end();" As we end the http service from here, and any functions that invoke http won't work after that.
+>⚠️**This part** is by far the most **troublesome** part of the guide, so i'll give you a few tools to check for what could go wrong.
+><br> - Use **vercel!!!** Vercel is your best friend in these situations! It has a very elaborate **logging** system which exactly tells you what is going wrong, for example if it's experiencing an **internal error** (so something with the API itself) or that your ESP8266 is encountering an error. You can find the logs by clicking on your most **recent deployment**, and navigating to the **logs tab** in the navigation.
+><br> - Check if the **item** you are trying to add does not already **exist** in mongoDB. When i wrote this guide, I was testing like crazy and didn't notice that it was actually working. MongoDB does not allow default items by default, and I didnt notice, so i constantly thought something else was going wrong.
+><br> - If you are getting **403 forbidden errors** something is going wrong on the ESP8266 side of things. Check if you have the **right syntax** for the keys, in our repository they will look like this x-api-key and this x-api-secret. its very **case sensitive** so make sure you get it right. Another issue could be that you have the **wrong link**, or skipped a few steps when we were setting up the **HTTP library** and the wifisecure library.
+><br> - If you are getting **505 internal errors**, make sure you have added **app.set('trust proxy', true);** to index.js in your repository. Without this line **vercel** won't trust the ESP8266 and the process will immidiately fail.
+><br> - If you are still getting **errors** even after trying the above 4 suggestions, it might be worthwhile to add **debugging** to your HTTP part of the code. Write them yourself or ask chatGPT for a **debugging snippet**. IF you do this, make sure to paste the debugging lines above the line **"http.end();"** As we end the http service from here, and any functions that invoke http won't work after that.
 
 
 
@@ -297,13 +297,13 @@ Okay so quick check! If you arrived at this step you have:
  - Made the LEDS and the button work for the ESP8266
  - Made the HTTPS request work for the ESP8266
 
-If so, Congratulations! We are almost done. If you dont have any of those things, you can look back in the guide. On most checkpoints I have added solutions to potential errors, check if any of those help your situation. 
-For the last part of this guide, we will create a simple webapp to show our database card! All the hard work will finally pay off.
+If so, **Congratulations!** We are almost done. If you dont have any of those things, you can look back in the guide. On most checkpoints I have added solutions to potential errors, check if any of those help your situation. 
+For the last part of this guide, we will create a simple **webapp** to show our database card! All the hard work will finally pay off.
 
 Now dont worry, I wont instruct you how to build a website from scratch, I have made my own website for you to use, and you can download it by once again cloning a reposity, this time mine. For the people who would like the instructions for this again: 
 You can clone a repository by opening **the folder** where you want the code to be **located**. Then you open your **terminal**, and paste this **message** in there. "git clone https://github.com/LukaSpelberg/SmartBinder-Manual-IoT.git" Once its done, **open** the **new folder** that you have, and once again open **the terminal**. This time we will **type** the following text into the terminal: **"npm install".** This will install all the **libraries** we need.
 
-Once you have cloned the repository and typed npm install, you only need to do one last thing: create an .env document. We have also done this in the past, so you probably know how to do this by now. Create a document called ".env" in the root of your folder.
+Once you have **cloned** the repository and typed npm install, you only need to do one last thing: create an **.env** document. We have also done this in the past, so you probably know how to do this by now. Create a document called ".env" in the root of your folder.
 the document only has one thing in it:
 ```
 MONGODB_URI=
@@ -314,11 +314,11 @@ Once you have all this, type in the terminal "npm run dev". This will let the te
 <img width="2579" height="1388" alt="Frame 27" src="https://github.com/user-attachments/assets/4776708b-f733-4116-ab5a-4f860fa567bb" />
 
 
-With all these steps finally done, you have found a way to send documents to a database and display them on an app. 
+With all these steps finally done, you have found a way to send documents to a database and display them on an app. This marks the end of our guide. I hope it was informative, and I hope that you have reached the same end result as me.
 
 Here is a showcase video of the guide in action! https://youtu.be/lqxe38ZlvGY 
 
->⚠️ If you encountered any issues with the website, or any other part of this guide that are still unresolved, don't be scared to drop a new issue on this repo. I will read them all, and try to help you if I can. This way, we can all make a finished product!
+>⚠️ If you encountered **any issues** with the website, or any other part of this guide that are still unresolved, don't be scared to drop a new issue on this **repo**. I will read them all, and try to help you if I can. This way, we can all make a finished product!
 
 ### Sources
 This guide has been made with the help of the [official documentation of MongoDB.](https://www.mongodb.com/docs/atlas/app-services/data-api/migration/data-api-tutorial/#std-label-data-api-custom-express-alternative)
