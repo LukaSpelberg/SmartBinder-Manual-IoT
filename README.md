@@ -239,7 +239,7 @@ in the void setup you'll want to add one line of code
 client.setInsecure();
 ```
 This makes the ESP8266 skip the SSL verification, in our use case this is ideal, because we know the adress its sending to, and the ESP8266 has a very low amount of memory, so we don't want to add unnecessary steps.
-Now that we're finally done with the setup, its time to get to the real work! We will want the HTTP request to start at the top of our function that we already have (if digitalread(button_pin) == high) 
+Now that we're finally done with the setup, its time to get to the real work! We will want the HTTP request to start at the end of our function that we already have (if digitalread(button_pin) == high) 
 We need to paste the following things 
 ```
  http.begin(client, API_URL);
@@ -258,12 +258,6 @@ This is the tricky part, because the syntax is very confusing and gave me a real
 Once you have the httpResonsecode in your file, you are almost done! Simply end the http section with an "http.end()" and thats all! Just to check, your function should now look something like this:
 ```   
    if (digitalRead(BUTTON_PIN) == HIGH) {
-      http.begin(client, API_URL);
-      http.addHeader("Content-Type", "application/json");
-      http.addHeader("x-api-key", "Banaan");
-      http.addHeader("x-api-secret", "Plant");
-      int httpResponseCode = http.POST("{\"database\":\"SmartBinder\",\"collection\":\"cards\",\"document\":{\"energy\":\"fire\",\"HP\":\"300\",\"image\":\"https://raw.githubusercontent.com/LukaSpelberg/SmartBinder-Manual-IoT/refs/heads/main/image%2010.png\"}}");
-      http.end();
       while (pulses < 4) {
         fadeInOut(0xff, 0xff, 0xff);
         pulses = pulses + 1; 
@@ -276,7 +270,14 @@ Once you have the httpResonsecode in your file, you are almost done! Simply end 
       delay(500);
       pixels.clear();
       pixels.show();
-      pulses = 0; 
+      pulses = 0;
+
+     http.begin(client, API_URL);
+      http.addHeader("Content-Type", "application/json");
+      http.addHeader("x-api-key", "Banaan");
+      http.addHeader("x-api-secret", "Plant");
+      int httpResponseCode = http.POST("{\"database\":\"SmartBinder\",\"collection\":\"cards\",\"document\":{\"cardId\":\"alakazam-001\",\"energy\":\"fire\",\"HP\":\"300\",\"image\":\"https://raw.githubusercontent.com/LukaSpelberg/SmartBinder-Manual-IoT/refs/heads/main/image%2010.png\"}}");
+      http.end();
     }
 ```
 >⚠️ This part is by far the most troublesome part of the guide, so i'll give you a few tools to check for what could go wrong.
@@ -310,11 +311,16 @@ MONGODB_URI=
 In here you will need to paste your database connection string. You can simply copy the string from your previous .env file in the API.
 
 Once you have all this, type in the terminal "npm run dev". This will let the terminal start a server on your local computer. hold control, and click on the link in your teminal. This will open your default browser, and hooray! your card has been added to the app!
+<img width="2579" height="1388" alt="Frame 27" src="https://github.com/user-attachments/assets/4776708b-f733-4116-ab5a-4f860fa567bb" />
+
 
 With all these steps finally done, you have found a way to send documents to a database and display them on an app. 
+
+Here is a showcase video of the guide in action! https://youtu.be/lqxe38ZlvGY 
+
 >⚠️ If you encountered any issues with the website, or any other part of this guide that are still unresolved, don't be scared to drop a new issue on this repo. I will read them all, and try to help you if I can. This way, we can all make a finished product!
 
-### Bronnen
+### Sources
 This guide has been made with the help of the official documentation of MongoDB. https://www.mongodb.com/docs/atlas/app-services/data-api/migration/data-api-tutorial/#std-label-data-api-custom-express-alternative
 I have also used code of this public repository https://github.com/abhishekmongoDB/data-api-alternative. 
 I used this website for the LED strip fading https://www.tweaking4all.com/hardware/arduino/adruino-led-strip-effects
