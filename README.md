@@ -88,6 +88,127 @@ Vercel will now start **building**, this can take a while. If you've followed th
 
 ## Step 4 - Code for the ESP8266
 
+Now, we are going to write the code for the ESP8266 board, so that it can mimick the experience of the actual SmartBinder. First of all, open your arduino IDE and click new sketch. Copy the code down below, this will be our foundation 
+```
+#include <ArduinoJson.h>
+#include <ESP8266WiFi.h>
+#include <WiFiClient.h>
+#include <Adafruit_NeoPixel.h>
+#ifdef __AVR__
+ #include <avr/power.h> // Required for 16 MHz Adafruit Trinket
+#endif
+
+#define BUTTON_PIN D0
+
+#define PIN        D1 // On Trinket or Gemma, suggest changing this to 1
+
+// How many NeoPixels are attached to the Arduino?
+#define NUMPIXELS 12 // Popular NeoPixel ring size
+
+Adafruit_NeoPixel pixels(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
+
+#define DELAYVAL 500 // Time (in milliseconds) to pause between pixels
+
+
+// === CONFIGURATIE ===
+char ssid[] = "WIFi/Hotspot name";         // Vul hier de naam van je WiFi in
+char pass[] = "WIFI/hotspotPassword";  // Vul hier je WiFi-wachtwoord in
+
+
+int pulses = 0;
+
+WiFiClient client;
+
+void setup() {
+  #if defined(__AVR_ATtiny85__) && (F_CPU == 16000000)
+  clock_prescale_set(clock_div_1);
+#endif
+  // END of Trinket-specific code.
+
+  pinMode(BUTTON_PIN, INPUT);
+
+  pixels.begin(); // INITIALIZE NeoPixel strip object (REQUIRED)
+
+  Serial.begin(9600);
+  while (!Serial) { ; }
+
+  text.reserve(JSON_BUFF_DIMENSION);
+
+  Serial.println("Verbinden met WiFi...");
+  WiFi.begin(ssid, pass);
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+  Serial.println("\nWiFi verbonden!");
+
+  
+}
+
+
+
+void loop() {
+
+}
+```
+
+As always, there are a few things we need to change here. Lets start with the WiFi credentials. Under Configurate, you need to switch the placeholders with your hotspot credentials or wifi credentials. Thats for now the only thing we need to tweak. Now let's also look at adding things. First, we need to make some code with the ledstrip. I've made this with the help of this [guide](https://www.tweaking4all.com/hardware/arduino/adruino-led-strip-effects). If you are interested in playing more with your LEDStrip make sure to check out more of their stuff! We will be using parts of their Fade in/Fade out code. This is sadly made for a different type of LEDstrip than ours, so we need to tweak it a bit. 
+Use this snippet and paste it ABOVE your void loop() 
+```
+void FadeInOut(byte red, byte green, byte blue){
+  float r, g, b;
+     
+  for(int k = 0; k < 256; k=k+1) {
+    r = (k/256.0)*red;
+    g = (k/256.0)*green;
+    b = (k/256.0)*blue;
+    setAll(r,g,b);
+    showStrip();
+    delay(3);
+  }
+     
+  for(int k = 255; k >= 0; k=k-2) {
+    r = (k/256.0)*red;
+    g = (k/256.0)*green;
+    b = (k/256.0)*blue;
+    setAll(r,g,b);
+    showStrip();
+    delay(3);
+  }
+}
+```
+Most of this code works nicely, but we need to change specifically how we set the colors on our LEDstrip and how we tell it to show them. These two lines are the culprits on both for loops: ```setAll(r,g,b); showStrip();`` Our ledstrip always wants us to define what the color of every pixel needs to be, in this code, they just casually ask it to set everything to one color, but thats not the correct Syntax. Also, showstrip is not the correct syntax for our ledstrip either. So what we're going to do is replace those lines in BOTH for loops. 
+```
+  for (int i = 0; i < NUMPIXELS; i++) {
+    pixels.setPixelColor(i, pixels.Color(r, g, b));
+      }
+    pixels.show();
+```
+Copy this, and paste it. 
+>⚠️ Make sure that you replace the lines for both the for loops. The FadeInOut consists of a forloop that makes the color fade in, and a forloop that makes the color fade out, its important that we adjust to both loops.
+
+Now that we have the cool effect that we need for the LEDS, its time to implement our actual card interaction! 
+I've written this code for that: 
+```
+ if (digitalRead(BUTTON_PIN) == HIGH) {
+      while (pulses < 4) {
+        fadeInOut(0xff, 0xff, 0xff);
+        pulses = pulses + 1; 
+      }
+      for (int i = 0; i < NUMPIXELS; i++) {
+        pixels.setPixelColor(i, pixels.Color(0, 150, 0));
+      }
+      pixels.show();
+
+      delay(5000);
+      pixels.clear();
+      pixels.show();
+      pulses = 0; 
+    }
+```
+What this does if that when you press the button, it counts the amount of pulses it has done. If its below 4, it calls the cool LEDeffect we just added. After its 4, it switches to the green light to show you thats it's done. This way we're essentially mimicking a loading state. The fadein/out serves as the loading animation, and the green light shows that its done!
+
+
 
 ## Step 5 - Code for the website.
 
